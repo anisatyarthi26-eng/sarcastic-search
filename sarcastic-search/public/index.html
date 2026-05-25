@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sarcastic Search</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #fff; color: #202124; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 60px 20px 40px; }
+    .logo { font-size: 52px; font-weight: 400; letter-spacing: -1px; margin-bottom: 8px; }
+    .s1{color:#4285F4}.s2{color:#EA4335}.s3{color:#FBBC05}.s4{color:#4285F4}.s5{color:#34A853}.s6{color:#EA4335}.s7{color:#4285F4}.s8{color:#FBBC05}.s9{color:#EA4335}
+    .tagline { font-size: 14px; color: #5f6368; font-style: italic; margin-bottom: 32px; }
+    .search-bar { display: flex; width: 100%; max-width: 580px; gap: 8px; margin-bottom: 24px; }
+    input { flex: 1; padding: 12px 20px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 24px; outline: none; }
+    input:focus { border-color: #4285F4; box-shadow: 0 0 0 2px rgba(66,133,244,0.2); }
+    button { padding: 11px 20px; background: #f8f9fa; border: 1px solid #dfe1e5; border-radius: 24px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    button:hover { background: #e8eaed; }
+    .result-box { width: 100%; max-width: 580px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px 24px; display: none; }
+    .result-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .result-text { font-size: 16px; line-height: 1.7; color: #202124; }
+    .examples { margin-top: 24px; text-align: center; max-width: 580px; }
+    .examples p { font-size: 13px; color: #999; margin-bottom: 10px; }
+    .chip { display: inline-block; margin: 4px; padding: 6px 14px; border: 1px solid #dfe1e5; border-radius: 20px; font-size: 13px; color: #5f6368; cursor: pointer; background: white; }
+    .chip:hover { background: #f8f9fa; }
+    .loading { color: #999; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <span class="s1">S</span><span class="s2">a</span><span class="s3">r</span><span class="s4">c</span><span class="s5">a</span><span class="s6">s</span><span class="s7">t</span><span class="s8">i</span><span class="s9">c</span>
+  </div>
+  <p class="tagline">Honest answers. Unsolicited opinions. Zero empathy.</p>
+
+  <div class="search-bar">
+    <input id="q" type="text" placeholder="Ask something you probably already know..." />
+    <button onclick="doSearch()">🔍 Search</button>
+  </div>
+
+  <div class="result-box" id="result-box">
+    <div class="result-label">🙄 Sarcastic result</div>
+    <div class="result-text" id="result-text"></div>
+  </div>
+
+  <div class="examples">
+    <p>Try searching for</p>
+    <span class="chip" onclick="setQ('suggest a movie with no kissing scenes')">suggest a movie with no kissing scenes</span>
+    <span class="chip" onclick="setQ('how do I lose weight fast')">how do I lose weight fast</span>
+    <span class="chip" onclick="setQ('is water wet')">is water wet</span>
+    <span class="chip" onclick="setQ('why am I always tired')">why am I always tired</span>
+    <span class="chip" onclick="setQ('how to get rich quick')">how to get rich quick</span>
+  </div>
+
+  <script>
+    document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+    function setQ(v){ document.getElementById('q').value=v; doSearch(); }
+
+    async function doSearch(){
+      const q = document.getElementById('q').value.trim();
+      if(!q) return;
+      const box = document.getElementById('result-box');
+      const txt = document.getElementById('result-text');
+      box.style.display = 'block';
+      txt.innerHTML = '<span class="loading">Sighing heavily before answering you...</span>';
+
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q })
+        });
+        const data = await res.json();
+        txt.textContent = data.answer;
+      } catch(e) {
+        txt.textContent = "Even I can't be bothered to fail this gracefully. Check your connection.";
+      }
+    }
+  </script>
+</body>
+</html>
